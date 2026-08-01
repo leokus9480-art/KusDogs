@@ -1,0 +1,15 @@
+{
+  "name": "Kus Dogs Adventures",
+  "short_name": "Kus Dogs",
+  "description": "Rigby & Biscuit's neighborhood sniffari — every walk becomes a treasure hunt.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F6F1E6",
+  "theme_color": "#F6F1E6",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
