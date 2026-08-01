@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Kus Dogs Adventures</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Kus Dogs">
+<meta name="theme-color" content="#F6F1E6">
+<style>
+  :root{
+    --paper:#F6F1E6; --paper-deep:#EDE5D6; --leaf:#2BB37A; --leaf-deep:#198559;
+    --sky:#5AB3F2; --sky-deep:#2E7EC7; --teal:#34A99C; --coral:#F27E65;
+    --honey:#F2B74D; --bark:#5B4534; --ink:#322A21; --ink-soft:rgba(50,42,33,.62);
+    --flame:#F47A33; --mystery:#986FD6;
+    --sat:env(safe-area-inset-top,0px); --sab:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; height:100%; overscroll-behavior:none;}
+  body{background:var(--paper); font-family:ui-rounded,'SF Pro Rounded','Segoe UI',system-ui,sans-serif; color:var(--ink); position:fixed; inset:0; overflow:hidden;}
+  .screen{position:absolute; inset:0; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:calc(var(--sat) + 14px) 16px calc(var(--sab) + 96px);}
+  .hidden{display:none !important;}
+  .card{background:#fff; border-radius:22px; padding:16px; box-shadow:0 4px 14px rgba(50,42,33,.08); margin-bottom:14px;}
+  .card.deep{background:var(--paper-deep);}
+  h1{font-size:26px; margin:0; font-weight:800;}
+  .cap{font-size:11px; font-weight:700; color:var(--ink-soft); letter-spacing:.3px;}
+  .row{display:flex; align-items:center; gap:10px;}
+  .grow{flex:1;}
+  .big-btn{display:block; width:100%; border:0; border-radius:14px; background:var(--leaf); color:#fff; font-size:16px; font-weight:800; padding:15px; cursor:pointer; box-shadow:0 4px 0 rgba(0,0,0,.18); transition:transform .12s; font-family:inherit;}
+  .big-btn:active{transform:translateY(3px) scale(.98); box-shadow:0 1px 0 rgba(0,0,0,.18);}
+  .big-btn.honey{background:var(--honey); color:var(--ink);}
+  .big-btn.coral{background:var(--coral);}
+  .big-btn.skyb{background:var(--sky);}
+  .big-btn.ghost{background:var(--paper-deep); color:var(--ink); box-shadow:none;}
+  .bar{height:12px; background:var(--paper-deep); border-radius:99px; overflow:hidden;}
+  .bar>div{height:100%; background:linear-gradient(180deg,var(--leaf),#1e9c68); border-radius:99px; transition:width .8s cubic-bezier(.2,.8,.3,1);}
+  .bar.skyfill>div{background:linear-gradient(180deg,var(--sky),#3d92d8);}
+  input[type=text]{border:0; background:var(--paper-deep); border-radius:10px; padding:11px 12px; font:inherit; font-weight:700; width:100%;}
+  input[type=range]{width:100%; accent-color:var(--leaf);}
+
+  /* tab bar */
+  .tabbar{position:absolute; left:0; right:0; bottom:0; height:calc(64px + var(--sab)); padding-bottom:var(--sab); background:rgba(255,255,255,.97); backdrop-filter:blur(10px); display:flex; border-top:1px solid rgba(50,42,33,.08); z-index:50;}
+  .tab{flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; cursor:pointer; color:var(--ink-soft); font-size:10px; font-weight:700;}
+  .tab.active{color:var(--leaf-deep);}
+  .tab .ico{font-size:22px;}
+
+  /* mascot & sprites */
+  .stage{display:flex; flex-direction:column; align-items:center;}
+  .sprite{width:230px; height:230px; background-repeat:no-repeat; border-radius:20px;}
+  .mascot-img{height:210px; border-radius:20px; animation:breathe 3.4s ease-in-out infinite; transform-origin:bottom center;}
+  @keyframes breathe{0%,100%{transform:scale(1) rotate(-.8deg);}50%{transform:scale(1.015,.99) rotate(.8deg) translateY(-3px);}}
+  @keyframes hop{0%{transform:translateY(0);}30%{transform:translateY(-16px) scale(.96,1.06);}60%{transform:translateY(0) scale(1.05,.94);}100%{transform:translateY(0);}}
+  .hopping{animation:hop .5s cubic-bezier(.3,1.4,.4,1) !important;}
+  .pop{animation:pop .5s cubic-bezier(.2,1.6,.4,1);}
+  @keyframes pop{0%{transform:scale(.5);}100%{transform:scale(1);}}
+  .duo-solos{display:flex; gap:12px; width:100%; margin-top:10px;}
+  .solo{flex:1; background:#fff; border-radius:16px; padding:10px; text-align:center; box-shadow:0 3px 10px rgba(50,42,33,.07); cursor:pointer;}
+  .solo img{width:100%; border-radius:12px;}
+  .solo .nm{font-weight:900; font-size:14px;}
+  .solo .bd{font-size:10px; color:var(--ink-soft); font-weight:700;}
+
+  .streak{display:flex; align-items:center; gap:6px; background:#fff; border-radius:99px; padding:7px 13px; box-shadow:0 3px 8px rgba(50,42,33,.1); font-weight:900; color:var(--flame); font-size:17px;}
+  .streak img{width:22px; height:22px; animation:flick .7s ease-in-out infinite alternate;}
+  @keyframes flick{from{transform:scale(.92);}to{transform:scale(1.1);}}
+
+  .pills{display:flex; gap:8px; margin:10px 0;}
+  .pill{flex:1; text-align:center; padding:9px 3px; border-radius:12px; background:var(--paper-deep); color:var(--ink-soft); cursor:pointer; font-size:11px; font-weight:800; transition:all .2s;}
+  .pill span{display:block; font-size:9px; font-weight:600; opacity:.7;}
+  .pill.sel{background:var(--leaf); color:#fff; transform:scale(1.05);}
+  .seg{display:flex; background:var(--paper-deep); border-radius:10px; padding:3px;}
+  .seg div{flex:1; text-align:center; padding:7px 10px; border-radius:8px; font-size:12px; font-weight:800; color:var(--ink-soft); cursor:pointer;}
+  .seg div.sel{background:#fff; color:var(--ink); box-shadow:0 2px 6px rgba(0,0,0,.08);}
+  .dirchips{display:flex; gap:6px; overflow-x:auto; padding-bottom:6px; margin-bottom:6px; scrollbar-width:none;}
+  .dirchips::-webkit-scrollbar{display:none;}
+  .dirchip{flex-shrink:0; font-size:11.5px; font-weight:900; color:var(--ink-soft); background:var(--paper-deep); border-radius:99px; padding:8px 13px; cursor:pointer;}
+  .dirchip.sel{background:var(--sky-deep); color:#fff;}
+
+  .mapwrap{position:relative; border-radius:14px; overflow:hidden; height:200px; margin-bottom:12px; background:#EDE8DA;}
+  .mapwrap.tall{height:100%; margin:0; border-radius:0;}
+  canvas.map{width:100%; height:100%; display:block;}
+  .maptag{position:absolute; font-size:10px; font-weight:800; color:#fff; padding:5px 10px; border-radius:99px;}
+  .fresh-tag{left:8px; bottom:8px; background:rgba(25,133,89,.94);}
+  .nov-tag{right:8px; top:8px; background:rgba(152,111,214,.94);}
+
+  .quest{display:flex; gap:10px; margin-bottom:10px; align-items:flex-start;}
+  .qcheck{width:22px; height:22px; border-radius:50%; border:2.5px dashed rgba(50,42,33,.3); flex-shrink:0; margin-top:2px; display:flex; align-items:center; justify-content:center; color:#fff; font-size:13px; font-weight:900;}
+  .quest.done .qcheck{background:var(--leaf); border-color:var(--leaf);}
+  .qtitle{font-weight:800; font-size:14px;}
+  .qsub{font-size:11px; color:var(--ink-soft); margin-bottom:4px;}
+  .glow{animation:glow 1s ease-in-out infinite alternate;}
+  @keyframes glow{from{transform:scale(1);}to{transform:scale(1.14); filter:drop-shadow(0 0 8px var(--honey));}}
+
+  .fieldrow{display:flex; align-items:center; gap:10px; padding:6px 0;}
+  .fieldrow img{width:36px; height:36px; border-radius:8px;}
+  .fieldrow.locked img{filter:saturate(0) opacity(.4);}
+  .fieldrow .name{font-weight:800; font-size:14px;}
+  .count{font-weight:900; color:var(--leaf); font-size:15px;}
+  .badges-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px;}
+  .bdg{text-align:center; font-size:10.5px; font-weight:800;}
+  .bdg img{width:76px; height:76px; border-radius:50%; box-shadow:0 0 14px rgba(242,183,77,.45);}
+  .bdg.locked img{filter:saturate(0) opacity(.35); box-shadow:none;}
+  .bdg.locked{color:var(--ink-soft);}
+  .spot-cards{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .spotcard{background:#fff; border-radius:16px; padding:10px; box-shadow:0 3px 10px rgba(50,42,33,.07);}
+  .spotcard img{width:42px; height:42px; border-radius:10px;}
+  .tier{font-size:8px; font-weight:900; color:#fff; padding:3px 7px; border-radius:99px; float:right;}
+  .ring{width:66px; height:66px; position:relative; flex-shrink:0;}
+  .ring svg{transform:rotate(-90deg);}
+  .ring .lvl{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; font-weight:900; font-size:22px; line-height:1;}
+  .ring .lvl small{font-size:8px; color:var(--ink-soft); letter-spacing:1px;}
+  .statline{display:flex; justify-content:space-between; padding:5px 0; font-size:13.5px;}
+
+  .overlay{position:absolute; inset:0; background:var(--paper); z-index:100; display:flex; flex-direction:column; padding:calc(var(--sat) + 12px) 14px calc(var(--sab) + 14px);}
+  .hud{display:flex; gap:8px; margin-bottom:8px;}
+  .hudchip{background:rgba(255,255,255,.95); border-radius:99px; padding:6px 11px; font-size:11px; font-weight:800; box-shadow:0 2px 6px rgba(0,0,0,.1);}
+  .toast{position:absolute; top:calc(var(--sat) + 54px); left:16px; right:16px; background:#fff; border-radius:18px; padding:11px; display:flex; align-items:center; gap:10px; box-shadow:0 10px 30px rgba(0,0,0,.25); z-index:120; animation:slidein .5s cubic-bezier(.2,1.4,.4,1);}
+  @keyframes slidein{from{transform:translateY(-120px); opacity:0;}to{transform:translateY(0); opacity:1;}}
+  .toast img{width:42px; height:42px; border-radius:10px;}
+  .xpnum{font-size:26px; font-weight:900; color:var(--leaf);}
+  .celebrate{position:absolute; inset:0; background:rgba(30,25,20,.62); z-index:200; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:30px;}
+  .celebrate h1{color:#fff; font-size:32px;}
+  .celebrate p{color:rgba(255,255,255,.85); font-size:14px;}
+  #confetti{position:absolute; inset:0; pointer-events:none; z-index:400;}
+  .treats{display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%;}
+  .treat{background:#fff; border-radius:16px; padding:12px; text-align:center; cursor:pointer;}
+  .treat img{height:56px; border-radius:10px;}
+  .treat .tn{font-weight:800; font-size:12.5px;}
+  .treat .tf{font-size:9.5px; color:var(--ink-soft);}
+  .install-tip{background:var(--sky-deep); color:#fff; border-radius:14px; padding:12px; font-size:12.5px; font-weight:700; margin-bottom:14px; line-height:1.45;}
+</style>
+</head>
+<body>
+
+<!-- ONBOARDING -->
+<div class="overlay" id="onboard" style="z-index:300; overflow-y:auto;">
+  <div class="stage" style="margin-top:20px;">
+    <img class="mascot-img" src="art/MascotMaster.png" style="height:190px;">
+    <h1 style="text-align:center; margin-top:10px;">Kus Dogs<br>Adventures</h1>
+    <p class="cap" style="text-align:center; max-width:300px; margin:8px auto;">Every walk becomes a treasure hunt. New smells beat long miles — 20 minutes of fresh sniffing enriches a dog as much as an hour of plain walking.</p>
+  </div>
+  <div class="card">
+    <div class="cap" style="margin-bottom:4px;">DOG ONE</div>
+    <input type="text" id="obDog1" value="Rigby">
+    <div class="cap" style="margin:10px 0 4px;">DOG TWO</div>
+    <input type="text" id="obDog2" value="Biscuit">
+    <div class="cap" style="margin:10px 0 4px;">YOUR NAME</div>
+    <input type="text" id="obGuide" placeholder="Guide" value="Leo">
+    <div class="cap" style="margin:12px 0 6px;">DAILY GOAL (sniff-minutes, not miles)</div>
+    <div class="seg" id="obGoal">
+      <div data-g="10">Chill · 10m</div>
+      <div class="sel" data-g="20">Steady · 20m</div>
+      <div data-g="35">Serious · 35m</div>
+    </div>
+  </div>
+  <div class="install-tip" id="installTip">
+    📲 <b>Make it a real app:</b> in Safari tap the Share button <span style="font-size:14px;">⬆︎</span> then <b>“Add to Home Screen”</b>. Kus Dogs gets its own icon and runs fullscreen — GPS and all.
+  </div>
+  <button class="big-btn" onclick="App.finishOnboarding()">Let's go! 🐾</button>
+</div>
+
+<!-- HOME -->
+<div class="screen" id="scr-home">
+  <div class="row" style="margin-bottom:12px;">
+    <div class="grow">
+      <div class="cap" id="greeting"></div>
+      <h1 id="packNames">Rigby &amp; Biscuit</h1>
+    </div>
+    <div class="streak"><img src="art/IconFlame.png"><span id="streakN">0</span></div>
+  </div>
+
+  <div class="card deep stage">
+    <div class="sprite" id="duoSprite" data-strip="art/SpriteDuo.png" data-frames="6" data-fps="6"></div>
+    <div class="duo-solos">
+      <div class="solo" onclick="App.soloTap('rigby')">
+        <img id="rigbyImg" src="art/RigbySolo.png">
+        <div class="nm" id="rigbyName">Rigby</div><div class="bd">Wheaten Terrier</div>
+      </div>
+      <div class="solo" onclick="App.soloTap('biscuit')">
+        <img id="biscuitImg" src="art/BiscuitSolo.png">
+        <div class="nm" id="biscuitName">Biscuit</div><div class="bd">Cavapoo</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row"><h1 style="font-size:20px;" class="grow">Today's Sniffari</h1><span class="cap" style="color:var(--sky-deep);" id="headsLbl"></span></div>
+    <div class="pills">
+      <div class="pill" data-len="quick" onclick="App.pickLen('quick')">🐇 Quick<span>~10 min</span></div>
+      <div class="pill sel" data-len="std" onclick="App.pickLen('std')">🚶 Standard<span>~25 min</span></div>
+      <div class="pill" data-len="big" onclick="App.pickLen('big')">⛰️ Big<span>~45 min</span></div>
+      <div class="pill" data-len="custom" onclick="App.pickLen('custom')">🎚️ Custom<span id="custLbl">set length</span></div>
+    </div>
+    <div class="hidden" id="custBox" style="margin-bottom:10px;">
+      <div class="row" style="margin-bottom:4px;">
+        <div class="seg" style="width:170px;">
+          <div class="sel" id="unitTime" onclick="App.setUnit('time')">Time</div>
+          <div id="unitDist" onclick="App.setUnit('dist')">Distance</div>
+        </div>
+        <div class="grow"></div>
+        <b style="color:var(--leaf-deep); font-size:16px;" id="custBig">1h 0m</b>
+      </div>
+      <input type="range" id="custRange" min="0" max="300" step="15" value="60" oninput="App.setCustom(this.value)">
+      <div class="cap" id="custEst"></div>
+    </div>
+    <div class="dirchips" id="dirChips"></div>
+    <div class="mapwrap">
+      <canvas class="map" id="previewMap"></canvas>
+      <div class="maptag fresh-tag">✨ <span id="freshN">–</span> new spots on this loop</div>
+      <div class="maptag nov-tag"><span id="novN">–</span>% fresh ground</div>
+    </div>
+    <button class="big-btn" onclick="App.openWalk()">🐾 Start the Sniffari</button>
+  </div>
+
+  <div class="card">
+    <div class="row" style="margin-bottom:10px;"><h1 style="font-size:20px;" class="grow">Daily Quests</h1><img id="chestImg" src="art/IconChest.png" style="width:36px; height:36px; border-radius:8px;"></div>
+    <div id="questList"></div>
+    <button class="big-btn honey hidden" id="chestBtn" onclick="App.openChest()">✨ Open the Treasure Chest</button>
+    <div class="cap hidden" id="chestDone" style="color:var(--leaf-deep);">✅ Chest opened — +120 XP for the whole pack!</div>
+  </div>
+
+  <div class="card">
+    <div class="row"><b class="grow" style="font-size:15px;">Neighborhood Explored</b><span class="xpnum" style="color:var(--sky-deep); font-size:22px;" id="pctExp">0%</span></div>
+    <div class="bar skyfill" style="margin:8px 0;"><div id="expBar" style="width:0%"></div></div>
+    <div class="cap"><span id="spotsTotal">0</span> spots discovered so far.</div>
+  </div>
+</div>
+
+<!-- MAP -->
+<div class="screen hidden" id="scr-map" style="padding:0;">
+  <div class="mapwrap tall"><canvas class="map" id="bigMap"></canvas>
+    <div style="position:absolute; bottom:calc(var(--sab) + 100px); left:16px; right:16px;" class="card">
+      <div class="row"><span class="cap grow">🗺️ Neighborhood explored</span><b style="color:var(--sky-deep); font-size:20px;" id="pctExp2">0%</b></div>
+      <div class="bar skyfill" style="margin-top:6px;"><div id="expBar2" style="width:0%"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- COLLECTION -->
+<div class="screen hidden" id="scr-collection">
+  <h1 style="margin-bottom:12px;">Collection</h1>
+  <div class="seg" style="margin-bottom:14px;">
+    <div class="sel" onclick="App.segPick(this,'spots')">Sniff Spots</div>
+    <div onclick="App.segPick(this,'badges')">Badges</div>
+  </div>
+  <div id="col-spots">
+    <div class="card" id="fieldGuide"></div>
+    <b style="font-size:17px; display:block; margin:8px 0;">Recent discoveries</b>
+    <div class="spot-cards" id="recentSpots"></div>
+  </div>
+  <div id="col-badges" class="hidden"><div class="badges-grid" id="badgeGrid"></div></div>
+</div>
+
+<!-- PACK -->
+<div class="screen hidden" id="scr-pack">
+  <h1 style="margin-bottom:12px;">The Pack</h1>
+  <div class="card deep stage"><div class="sprite" data-strip="art/SpriteDuo.png" data-frames="6" data-fps="6" style="width:200px; height:200px;"></div></div>
+  <div class="card" id="dogTrack"></div>
+  <div class="card" id="guideTrack"></div>
+  <div class="card" id="lifeStats"></div>
+  <div class="card"><b style="font-size:17px;">Treat History</b><div id="treatHistory"></div></div>
+</div>
+
+<!-- TAB BAR -->
+<div class="tabbar">
+  <div class="tab active" data-t="home" onclick="App.tabTo('home')"><span class="ico">☀️</span>Today</div>
+  <div class="tab" data-t="map" onclick="App.tabTo('map')"><span class="ico">🗺️</span>Map</div>
+  <div class="tab" data-t="collection" onclick="App.tabTo('collection')"><span class="ico">🎒</span>Collection</div>
+  <div class="tab" data-t="pack" onclick="App.tabTo('pack')"><span class="ico">🐾</span>Pack</div>
+</div>
+
+<!-- WALK CHOICE -->
+<div class="overlay hidden" id="walkChoice">
+  <div class="stage" style="margin-top:40px;">
+    <img class="mascot-img" src="art/PoseExcited.png" style="height:190px;">
+    <h1 style="margin-top:10px;">Ready to sniff?</h1>
+    <p class="cap" style="text-align:center; max-width:280px;" id="walkBlurb"></p>
+  </div>
+  <div class="grow"></div>
+  <button class="big-btn" style="margin-bottom:10px;" onclick="App.startWalk('gps')">📍 Real walk with GPS</button>
+  <button class="big-btn skyb" style="margin-bottom:10px;" onclick="App.startWalk('demo')">✨ Demo walk (no GPS needed)</button>
+  <button class="big-btn ghost" onclick="App.closeWalkChoice()">Not now</button>
+</div>
+
+<!-- WALK -->
+<div class="overlay hidden" id="walkOverlay">
+  <div class="hud">
+    <div class="hudchip">⏱ <span id="wTime">0:00</span></div>
+    <div class="hudchip">✨ <span id="wNew">0</span> new</div>
+    <div class="hudchip">👃 <span id="wSniff">0</span>m</div>
+    <div class="hudchip" id="gpsChip">📍…</div>
+  </div>
+  <div class="mapwrap" style="flex:1; border-radius:18px;"><canvas class="map" id="walkMap"></canvas></div>
+  <div class="card" style="margin:12px 0 0;">
+    <div class="row" style="margin-bottom:10px;">
+      <div class="sprite" data-strip="art/SpriteRigby.png" data-frames="16" data-fps="12" style="width:52px; height:52px; border-radius:10px;"></div>
+      <div class="sprite" data-strip="art/SpriteBiscuit.png" data-frames="16" data-fps="12" style="width:44px; height:44px; border-radius:10px;"></div>
+      <div class="grow"><div class="qtitle" id="walkMode">Sniffari in progress</div><div class="cap"><span id="wDist">0.00</span> km · fog cleared: <span id="wTiles">0</span> tiles</div></div>
+      <div style="text-align:center;"><div class="xpnum" id="wXP">0</div><div class="cap" style="font-size:9px;">XP</div></div>
+    </div>
+    <button class="big-btn coral" onclick="App.finishWalk()">🏁 Finish Sniffari</button>
+  </div>
+  <div id="walkToast"></div>
+</div>
+
+<!-- SUMMARY -->
+<div class="overlay hidden" id="summaryOverlay" style="overflow-y:auto;">
+  <div class="card deep stage">
+    <img class="mascot-img pop" src="art/PoseHappy.png" style="height:160px;">
+    <h1 style="font-size:26px; margin-top:8px;">Sniffari complete!</h1>
+    <div class="xpnum" style="font-size:38px;">+<span id="sXP">0</span> XP</div>
+  </div>
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;">
+    <div class="card" style="margin:0;">✨ <b id="sNew">0</b><div class="cap">New spots</div></div>
+    <div class="card" style="margin:0;">👃 <b id="sSniff">0m</b><div class="cap">Sniff time</div></div>
+    <div class="card" style="margin:0;">⏱ <b id="sTime">0:00</b><div class="cap">Duration</div></div>
+    <div class="card" style="margin:0;">🗺️ <b id="sTiles">0</b><div class="cap">Fog cleared</div></div>
+  </div>
+  <div class="card" id="sSpotsCard"></div>
+  <button class="big-btn ghost" onclick="App.closeSummary()">Back to base</button>
+</div>
+
+<!-- LEVEL UP -->
+<div class="celebrate hidden" id="levelUp">
+  <img class="mascot-img pop" src="art/PoseExcited.png" style="height:190px;">
+  <h1>Level <span id="luLvl"></span>!</h1>
+  <p id="luRankLine"></p>
+  <button class="big-btn honey" style="max-width:220px;" onclick="App.showTreats()">Woohoo!</button>
+</div>
+
+<!-- TREAT CEREMONY -->
+<div class="celebrate hidden" id="treatCeremony" style="background:var(--paper);">
+  <div id="treatStage1">
+    <img class="glow" src="art/IconChest.png" style="height:130px; border-radius:20px;">
+    <h1 style="color:var(--ink);">Treat Unlocked!</h1>
+    <p style="color:var(--ink-soft);" id="treatIntro"></p>
+    <button class="big-btn honey" style="max-width:240px;" onclick="App.treatStage(2)">The bowl is ready ✓</button>
+  </div>
+  <div id="treatStage2" class="hidden" style="width:100%;">
+    <img class="mascot-img" src="art/PoseExcited.png" style="height:110px;">
+    <h1 style="color:var(--ink); font-size:24px;">What did they choose?</h1>
+    <p class="cap">Tap the winner — the app learns their favorites.</p>
+    <div class="treats" id="treatGrid"></div>
+  </div>
+  <div id="treatStage3" class="hidden">
+    <img class="mascot-img" src="art/PoseHappy.png" style="height:170px;">
+    <h1 style="color:var(--ink);" id="chosenTreatName"></h1>
+    <p style="color:var(--ink-soft);" id="chosenTreatLine"></p>
+    <button class="big-btn" style="max-width:240px;" onclick="App.closeTreats()">Back to adventuring</button>
+  </div>
+</div>
+
+<canvas id="confetti"></canvas>
+
+<script>
+'use strict';
+/* =====================================================================
+   Kus Dogs Adventures — PWA
+   Deterministic world + fog-of-war + dual XP + quests + treats.
+   Mirrors the native Swift app's engines (WorldHash / SpotSeeder /
+   RouteGenerator / XPRules) in JavaScript.
+===================================================================== */
+
+/* ---------- tiny utils ---------- */
+const $ = id => document.getElementById(id);
+const now = () => Date.now();
+const dayKey = (d=new Date()) => d.toISOString().slice(0,10);
+const clamp = (v,a,b) => Math.min(b, Math.max(a,v));
+const haptic = ms => { try{ navigator.vibrate && navigator.vibrate(ms); }catch(e){} };
+
+/* ---------- synth audio (zero assets) ---------- */
+const Sfx = (() => {
+  let ctx = null;
+  const ensure = () => { if(!ctx) ctx = new (window.AudioContext||window.webkitAudioContext)(); if(ctx.state==='suspended') ctx.resume(); };
+  const note = (f, t, d, g) => {
+    const o = ctx.createOscillator(), o2 = ctx.createOscillator(), amp = ctx.createGain();
+    o.frequency.value = f; o2.frequency.value = f*2.01;
+    const g2 = ctx.createGain(); g2.gain.value = .25;
+    o.connect(amp); o2.connect(g2); g2.connect(amp); amp.connect(ctx.destination);
+    const t0 = ctx.currentTime + t;
+    amp.gain.setValueAtTime(0, t0);
+    amp.gain.linearRampToValueAtTime(g, t0 + .012);
+    amp.gain.exponentialRampToValueAtTime(.0001, t0 + d);
+    o.start(t0); o2.start(t0); o.stop(t0+d+.05); o2.stop(t0+d+.05);
+  };
+  const play = ns => { try{ ensure(); ns.forEach(n => note(...n)); }catch(e){} };
+  return {
+    tap: () => play([[660,0,.09,.18]]),
+    discover: () => play([[523.25,0,.14,.22],[659.25,.09,.16,.22],[783.99,.18,.25,.24]]),
+    chest: () => play([[392,0,.16,.2],[523.25,.1,.16,.2],[659.25,.2,.3,.24],[1046.5,.34,.4,.18]]),
+    fanfare: () => play([[523.25,0,.18,.24],[659.25,.12,.18,.24],[783.99,.24,.18,.24],[1046.5,.36,.5,.28],[1318.5,.52,.42,.16]]),
+    finish: () => play([[392,0,.4,.2],[493.88,.05,.4,.19],[587.33,.1,.55,.21]]),
+  };
+})();
+
+/* ---------- deterministic world (port of Swift WorldHash/SpotSeeder) ---------- */
+const World = (() => {
+  const TILE_LAT = 0.0005;
+  let lonScale = 1;
+  const configure = lat => { lonScale = Math.max(.2, Math.cos(lat*Math.PI/180)); };
+  const tileLon = () => TILE_LAT / lonScale;
+  const tile = (lat,lon) => [Math.floor(lon/tileLon()), Math.floor(lat/TILE_LAT)];
+  const key = (x,y) => x+':'+y;
+  const center = (x,y) => [ (y+.5)*TILE_LAT, (x+.5)*tileLon() ];
+
+  // 64-bit-ish deterministic hash using BigInt for parity with Swift.
+  const M1 = 0x9E3779B97F4A7C15n, M2 = 0xC2B2AE3D27D4EB4Fn, M3 = 0xFF51AFD7ED558CCDn, M4 = 0xC4CEB9FE1A85EC53n;
+  const MASK = (1n<<64n)-1n;
+  const hash = (x,y,salt=0x5D0F00D5n) => {
+    let h = (BigInt(x) * M1) & MASK;
+    h ^= (BigInt(y) * M2) & MASK; h ^= salt;
+    h ^= h>>33n; h = (h*M3)&MASK; h ^= h>>33n; h = (h*M4)&MASK; h ^= h>>33n;
+    return h & MASK;
+  };
+  const unit = h => Number(h % 1000000n)/1000000;
+
+  const TYPES = [
+    {id:'tree', name:'Grand Tree', img:'SpotTree', p:.30},
+    {id:'hydrant', name:'Hydrant', img:'SpotHydrant', p:.22},
+    {id:'bench', name:'Old Bench', img:'SpotBench', p:.16},
+    {id:'park', name:'Park', img:'SpotPark', p:.14},
+    {id:'trailhead', name:'Trailhead', img:'SpotTrailhead', p:.11},
+    {id:'mystery', name:'Mystery Spot', img:'SpotMystery', p:.07},
+  ];
+  const ADJ = ["Whispering","Crooked","Sunny","Mossy","Secret","Windy","Grand","Sleepy","Rustling","Golden","Foggy","Merry"];
+  const spotAt = (x,y) => {
+    const h = hash(x,y);
+    if(unit(h) >= .32) return null;
+    const r2 = unit(hash(x,y,0xB15C0175n));
+    let acc = 0, type = TYPES[0];
+    for(const t of TYPES){ acc += t.p/ TYPES.reduce((s,q)=>s+q.p,0); if(r2 < acc){ type = t; break; } }
+    const r3 = unit(hash(x,y,0x7EA7B04En));
+    const tier = r3<.62?'common': r3<.87?'uncommon': r3<.985?'rare':'legendary';
+    const adj = ADJ[Number(hash(x,y,0x9A3En) % BigInt(ADJ.length))];
+    const jx = (unit(hash(x,y,0xA11CEn))-.5)*.8, jy = (unit(hash(x,y,0xB0Bn))-.5)*.8;
+    const [clat, clon] = center(x,y);
+    return { id:'spot-'+key(x,y), type, tier,
+      name: type.id==='tree' ? `The ${adj} Oak` : type.id==='park' ? `${adj} Meadow` : `${adj} ${type.name}`,
+      lat: clat + jy*TILE_LAT, lon: clon + jx*tileLon() };
+  };
+  const spotsAround = (lat,lon,r) => {
+    const [tx,ty] = tile(lat,lon); const out = [];
+    for(let dx=-r; dx<=r; dx++) for(let dy=-r; dy<=r; dy++)
+      if(dx*dx+dy*dy <= r*r){ const s = spotAt(tx+dx, ty+dy); if(s) out.push(s); }
+    return out;
+  };
+  const dist = (a,b,c,d) => { // meters between two lat/lon
+    const R=6371000, dLat=(c-a)*Math.PI/180, dLon=(d-b)*Math.PI/180;
+    const q = Math.sin(dLat/2)**2 + Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dLon/2)**2;
+    return 2*R*Math.asin(Math.sqrt(q));
+  };
+  const XP = { common:25, uncommon:45, rare:90, legendary:200 };
+  const NEIGH_R = 18;
+  const coverage = (tiles, homeLat, homeLon) => {
+    const [hx,hy] = tile(homeLat,homeLon); let total=0, seen=0;
+    for(let dx=-NEIGH_R; dx<=NEIGH_R; dx++) for(let dy=-NEIGH_R; dy<=NEIGH_R; dy++)
+      if(dx*dx+dy*dy<=NEIGH_R*NEIGH_R){ total++; if(tiles.has(key(hx+dx,hy+dy))) seen++; }
+    return total? seen/total*100 : 0;
+  };
+  return { configure, tile, key, center, tileLon, TILE_LAT, spotAt, spotsAround, dist, XP, coverage, hash, unit };
+})();
+
+/* ---------- persistence ---------- */
+const Store = {
+  data: null,
+  defaults: () => ({
+    onboarded:false, dog1:'Rigby', dog2:'Biscuit', guide:'Leo', goal:20,
+    dogXP:0, guideXP:0, streak:0, lastWalkDay:null, freeze:true,
+    home:null,                    // [lat,lon] anchored on first walk
+    tiles:[], spots:{},           // key list; id -> {name,type,tier,date}
+    badges:{}, treats:[],
+    quests:{day:null, list:[]},
+    walks:[], totalSniffSec:0, totalDist:0,
+  }),
+  load(){ try{ this.data = Object.assign(this.defaults(), JSON.parse(localStorage.getItem('kusdogs')||'{}')); }catch(e){ this.data = this.defaults(); } },
+  save(){ localStorage.setItem('kusdogs', JSON.stringify(this.data)); },
+};
+
+/* ---------- XP / ranks (port of Swift XPRules) ---------- */
+const XPR = {
+  cum(l){ return l<=1?0: Math.floor(120*Math.pow(l-1,1.35)*(l-1)/2 + (l-1)*60); },
+  level(xp){ let l=1; while(this.cum(l+1)<=xp) l++; return l; },
+  prog(xp){ const l=this.level(xp), f=this.cum(l), c=this.cum(l+1); return {l, frac:(xp-f)/Math.max(1,c-f), toNext:c-xp}; },
+};
+const DOG_RANKS = ["Curious Pup","Block Explorer","Neighborhood Scout","Trail Blazer","Master Sniffer","Legendary Nose"];
+const GUIDE_RANKS = ["Leash Holder","Route Scout","Adventure Guide","Pathfinder","Expedition Leader","Legend of the Neighborhood"];
+const rank = (arr,l) => arr[Math.min(arr.length-1, Math.floor((l-1)/4))];
+
+const BADGES = [
+  ['first-sniff','First Sniff','BadgeFirstSniff', s=>Object.keys(s.spots).length>=1],
+  ['spots-10','Ten Fresh Finds','BadgeSpots10', s=>Object.keys(s.spots).length>=10],
+  ['spots-50','Fifty Fresh Finds','BadgeSpots50', s=>Object.keys(s.spots).length>=50],
+  ['spots-100','Hundred Sniff Club','BadgeSpots100', s=>Object.keys(s.spots).length>=100],
+  ['streak-7','Week of Wonders','BadgeStreak7', s=>s.streak>=7],
+  ['sunrise','Sunrise Sniffer','BadgeSunrise', (s,w)=>w && w.startHour<7],
+  ['rain-or-shine','Rain or Shine','BadgeRainOrShine', s=>s.streak>=3],
+  ['park-pilgrim','Park Pilgrim','BadgeParkPilgrim', (s,w)=>w && w.foundTypes.includes('park')],
+  ['marathon-nose','Marathon Nose','BadgeMarathonNose', (s,w)=>w && w.dist>=3000],
+];
+const QUEST_POOL = [
+  ['new-spots-2','Fresh Noses','Discover 2 new sniff spots',2],
+  ['new-spots-3','Triple Scoop','Discover 3 new sniff spots',3],
+  ['walk-15','Fifteen & Free','Walk for 15 minutes',15],
+  ['sniff-5','Deep Sniffing','5 minutes of dedicated sniff time',5],
+  ['tiles-12','Fog Fighter','Reveal 12 new map tiles',12],
+  ['rare-1','Treasure Hunter','Find an uncommon or rarer spot',1],
+  ['distance-1k','Kilometer Cruise','Cover 1 km of ground',1000],
+];
+const TREATS = [
+  ['bone','Marrow Bone','TreatBone','The classic. Never fails.'],
+  ['cookie','Peanut Butter Cookie','TreatCookie','Baked for good dogs only.'],
+  ['ball','New Tennis Ball','TreatBall','Technically not food.'],
+  ['cheese','Cheese Cube','TreatCookie','The forbidden gold.'],
+];
+const FALLBACK_HOME = [37.3349, -122.0090];
+
+/* ---------- the app ---------- */
+const App = {
+  len:'std', unit:'time', customMin:60, customKm:3, dir:null, walk:null,
+
+  boot(){
+    Store.load();
+    const s = Store.data;
+    World.configure(s.home ? s.home[0] : FALLBACK_HOME[0]);
+    this.checkStreak(); this.ensureQuests();
+    if(s.onboarded){ $('onboard').classList.add('hidden'); }
+    if(window.navigator.standalone) { const t=$('installTip'); if(t) t.classList.add('hidden'); }
+    Sprites.start();
+    this.buildDirChips(); this.renderAll();
+    const hr = new Date().getHours();
+    $('greeting').textContent = hr<6?'The early-morning smells await': hr<12?'Good morning, adventure pack': hr<17?'Good afternoon, adventure pack':'Evening sniffs are the best sniffs';
+    if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+  },
+
+  finishOnboarding(){
+    const s = Store.data;
+    s.dog1 = $('obDog1').value||'Rigby'; s.dog2 = $('obDog2').value||'Biscuit';
+    s.guide = $('obGuide').value||'Guide';
+    s.goal = +(document.querySelector('#obGoal .sel')?.dataset.g||20);
+    s.onboarded = true; Store.save();
+    $('onboard').classList.add('hidden');
+    Confetti.burst(120); Sfx.fanfare(); haptic([30,40,30]);
+    this.renderAll();
+  },
+
+  /* ----- streak & quests ----- */
+  checkStreak(){
+    const s = Store.data;
+    if(!s.lastWalkDay) return;
+    const days = Math.floor((new Date(dayKey()) - new Date(s.lastWalkDay))/86400000);
+    if(days>=2){ if(s.freeze && days===2){ s.freeze=false; } else s.streak=0; Store.save(); }
+  },
+  ensureQuests(){
+    const s = Store.data;
+    if(s.quests.day === dayKey()) return;
+    const dayNum = Math.floor(now()/86400000);
+    const picks = []; const used = new Set(); let i=0;
+    while(picks.length<3){ const idx = Number(World.hash(dayNum, i++, 0x0DDBn) % BigInt(QUEST_POOL.length));
+      if(!used.has(idx)){ used.add(idx); const [id,t,d,target]=QUEST_POOL[idx]; picks.push({id,t,d,target,prog:0,done:false}); } }
+    s.quests = {day:dayKey(), list:picks, claimed:false};
+    Store.save();
+  },
+
+  /* ----- route ----- */
+  lenMinutes(){ return this.len==='custom' ? Math.max(5, this.unit==='time'? this.customMin : this.customKm*18) : {quick:10,std:25,big:45}[this.len]; },
+  spotCount(){ return clamp(Math.round(this.lenMinutes()/4.2), 2, 40); },
+  pickLen(l){ this.len=l; haptic(8); Sfx.tap();
+    document.querySelectorAll('.pill').forEach(p=>p.classList.toggle('sel', p.dataset.len===l));
+    $('custBox').classList.toggle('hidden', l!=='custom');
+    this.renderRoute(); },
+  setUnit(u){ this.unit=u;
+    $('unitTime').classList.toggle('sel',u==='time'); $('unitDist').classList.toggle('sel',u==='dist');
+    const r=$('custRange');
+    if(u==='time'){ r.min=0;r.max=300;r.step=15;r.value=this.customMin; } else { r.min=0;r.max=20;r.step=.5;r.value=this.customKm; }
+    this.setCustom(r.value); },
+  setCustom(v){ v=+v;
+    if(this.unit==='time'){ this.customMin=v; const h=Math.floor(v/60),m=v%60;
+      $('custBig').textContent = h>0? h+'h '+m+'m' : m+' min';
+      $('custLbl').textContent = h>0? h+'h'+(m?m+'m':'') : m+' min';
+      $('custEst').textContent = '≈ '+(v*.055).toFixed(1)+' km at a sniffy pace';
+    } else { this.customKm=v;
+      $('custBig').textContent = v.toFixed(1)+' km';
+      $('custLbl').textContent = v.toFixed(1)+' km';
+      $('custEst').textContent = '≈ '+Math.round(v*18)+' min at a sniffy pace'; }
+    this.renderRoute(); },
+  buildDirChips(){
+    const DIRS=[['🎲 Surprise me',null],['⬆ N',0],['↗ NE',45],['➡ E',90],['↘ SE',135],['⬇ S',180],['↙ SW',225],['⬅ W',270],['↖ NW',315]];
+    const w=$('dirChips');
+    DIRS.forEach(([lb,b],i)=>{ const d=document.createElement('div');
+      d.className='dirchip'+(i===0?' sel':''); d.textContent=lb;
+      d.onclick=()=>{ this.dir=b; haptic(8); w.querySelectorAll('.dirchip').forEach(x=>x.classList.remove('sel')); d.classList.add('sel'); this.renderRoute(); };
+      w.appendChild(d); });
+  },
+
+  /* ----- mascots ----- */
+  soloTap(which){
+    haptic(10); Sfx.tap();
+    const img = $(which+'Img');
+    // swap the portrait for the trot sprite for a few seconds
+    const strip = which==='rigby' ? 'art/SpriteRigby.png' : 'art/SpriteBiscuit.png';
+    if(!img.dataset.playing){
+      img.dataset.playing = '1';
+      const holder = document.createElement('div');
+      holder.className='sprite';
+      holder.style.cssText = 'width:100%; aspect-ratio:1; border-radius:12px;';
+      holder.dataset.strip = strip; holder.dataset.frames = 16; holder.dataset.fps = 12;
+      img.replaceWith(holder); Sprites.attach(holder);
+      Confetti.burst(30);
+      setTimeout(()=>{ holder.replaceWith(img); delete img.dataset.playing; }, 3000);
+    }
+  },
+
+  /* ----- tabs & rendering ----- */
+  tabTo(t){ document.querySelectorAll('.screen').forEach(x=>x.classList.add('hidden'));
+    $('scr-'+t).classList.remove('hidden');
+    document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active', x.dataset.t===t));
+    if(t==='map') MapDraw.big(); if(t==='collection') this.renderCollection(); if(t==='pack') this.renderPack(); },
+  segPick(el, which){ el.parentElement.querySelectorAll('div').forEach(d=>d.classList.remove('sel')); el.classList.add('sel');
+    $('col-spots').classList.toggle('hidden', which!=='spots'); $('col-badges').classList.toggle('hidden', which!=='badges'); },
+
+  renderAll(){ this.renderHeader(); this.renderRoute(); this.renderQuests(); this.renderMeter(); },
+  renderHeader(){ const s=Store.data;
+    $('packNames').innerHTML = `${s.dog1} &amp; ${s.dog2}`;
+    $('rigbyName').textContent = s.dog1; $('biscuitName').textContent = s.dog2;
+    $('streakN').textContent = s.streak; },
+  renderRoute(){ $('freshN').textContent = this.spotCount();
+    $('novN').textContent = clamp(55+Math.round(this.lenMinutes()*.75), 20, 95);
+    const names={0:'north',45:'northeast',90:'east',135:'southeast',180:'south',225:'southwest',270:'west',315:'northwest'};
+    $('headsLbl').textContent = '⇗ heads '+(names[this.dir===null?45:this.dir]||'northeast');
+    MapDraw.preview(); },
+  renderQuests(){ const s=Store.data, box=$('questList'); box.innerHTML='';
+    s.quests.list.forEach(q=>{ const pct = clamp(q.prog/q.target*100,0,100);
+      box.insertAdjacentHTML('beforeend', `<div class="quest ${q.done?'done':''}"><div class="qcheck">${q.done?'✓':''}</div>
+        <div class="grow"><div class="qtitle">${q.t}</div><div class="qsub">${q.d}</div>
+        <div class="bar"><div style="width:${pct}%"></div></div></div></div>`); });
+    const all = s.quests.list.length===3 && s.quests.list.every(q=>q.done);
+    $('chestBtn').classList.toggle('hidden', !(all && !s.quests.claimed));
+    $('chestDone').classList.toggle('hidden', !s.quests.claimed);
+    $('chestImg').classList.toggle('glow', all && !s.quests.claimed);
+    $('chestImg').style.filter = all? '' : 'saturate(.25) opacity(.75)'; },
+  renderMeter(){ const s=Store.data;
+    const home = s.home||FALLBACK_HOME;
+    const pct = World.coverage(new Set(s.tiles), home[0], home[1]);
+    ['pctExp','pctExp2'].forEach(id=>{ const el=$(id); if(el) el.textContent = pct.toFixed(1)+'%'; });
+    ['expBar','expBar2'].forEach(id=>{ const el=$(id); if(el) el.style.width = pct+'%'; });
+    $('spotsTotal').textContent = Object.keys(s.spots).length; },
+
+  renderCollection(){ const s=Store.data;
+    const spots = Object.values(s.spots);
+    const types = [['park','Park','SpotPark'],['tree','Grand Tree','SpotTree'],['hydrant','Hydrant','SpotHydrant'],['bench','Old Bench','SpotBench'],['trailhead','Trailhead','SpotTrailhead'],['mystery','Mystery Spot','SpotMystery']];
+    let fg = `<div class="row" style="margin-bottom:6px;"><b class="grow" style="font-size:17px;">Field Guide</b><span class="cap">${spots.length} collected</span></div>`;
+    types.forEach(([id,nm,img])=>{ const c = spots.filter(x=>x.type===id).length;
+      fg += `<div class="fieldrow ${c?'':'locked'}"><img src="art/${img}.png"><span class="name grow" ${c?'':'style="color:var(--ink-soft)"'}>${nm}</span><span class="count" ${c?'':'style="color:var(--ink-soft)"'}>${c?'×'+c:'?'}</span></div>`; });
+    $('fieldGuide').innerHTML = fg;
+    const tierColor={common:'rgba(50,42,33,.5)',uncommon:'var(--leaf)',rare:'var(--sky)',legendary:'var(--honey)'};
+    $('recentSpots').innerHTML = spots.slice(-12).reverse().map(x=>
+      `<div class="spotcard"><span class="tier" style="background:${tierColor[x.tier]};">${x.tier.toUpperCase()}</span><img src="art/${x.img}.png"><div class="qtitle">${x.name}</div><div class="qsub">${x.date}</div></div>`).join('') || '<div class="cap">Start a sniffari to fill this page!</div>';
+    $('badgeGrid').innerHTML = BADGES.map(([id,nm,img])=>{ const un = !!s.badges[id];
+      return `<div class="bdg ${un?'':'locked'}"><img src="art/${img}.png"><div>${nm}</div></div>`; }).join(''); },
+
+  renderPack(){ const s=Store.data;
+    const d = XPR.prog(s.dogXP), g = XPR.prog(s.guideXP);
+    const ring = (p,color,lvl,title,sub,toNext) => `<div class="row">
+      <div class="ring"><svg width="66" height="66"><circle cx="33" cy="33" r="28" stroke="var(--paper-deep)" stroke-width="7" fill="none"/>
+      <circle cx="33" cy="33" r="28" stroke="${color}" stroke-width="7" fill="none" stroke-linecap="round" stroke-dasharray="176" stroke-dashoffset="${176-176*p.frac}"/></svg>
+      <div class="lvl">${p.l}<small>LVL</small></div></div>
+      <div class="grow"><div class="qtitle">${title}</div><div class="cap" style="color:${color};">${sub}</div><div class="cap">${p.toNext} XP to next level</div></div></div>`;
+    $('dogTrack').innerHTML = ring(d,'var(--leaf)',d.l, `${s.dog1} & ${s.dog2}`, '🐾 '+rank(DOG_RANKS,d.l));
+    $('guideTrack').innerHTML = ring(g,'var(--sky)',g.l, s.guide, '🚶 Guide · '+rank(GUIDE_RANKS,g.l));
+    const fav = (()=>{ const m={}; s.treats.forEach(t=>m[t.name]=(m[t.name]||0)+1);
+      const e = Object.entries(m).sort((a,b)=>b[1]-a[1])[0]; return e? e[0]+' ×'+e[1] : '—'; })();
+    $('lifeStats').innerHTML = `<b style="font-size:17px;">Lifetime Adventure Log</b>
+      <div class="statline"><span>🚶 Total walks</span><b>${s.walks.length}</b></div>
+      <div class="statline"><span>✨ New spots discovered</span><b>${Object.keys(s.spots).length}</b></div>
+      <div class="statline"><span>👃 Total sniff time</span><b>${Math.round(s.totalSniffSec/60)} min</b></div>
+      <div class="statline"><span>📏 Ground covered</span><b>${(s.totalDist/1000).toFixed(1)} km</b></div>
+      <div class="statline"><span>❄️ Streak freeze</span><b>${s.freeze?'Available':'Used'}</b></div>
+      <div class="statline"><span>❤️ Favorite treat</span><b>${fav}</b></div>`;
+    $('treatHistory').innerHTML = s.treats.slice(-6).reverse().map(t=>
+      `<div class="fieldrow"><img src="art/${t.img}.png"><span class="name grow">${t.name}</span><span class="cap">Lv ${t.lvl}</span></div>`).join('')
+      || '<div class="cap" style="margin-top:6px;">Level up to unlock the first real-world treat ceremony!</div>'; },
+
+  /* ----- walk flow ----- */
+  openWalk(){ Sfx.tap(); haptic(15);
+    $('walkBlurb').textContent = `A ${this.lenMinutes()|0}-minute loop with ${this.spotCount()} brand-new spots waiting.`;
+    $('walkChoice').classList.remove('hidden'); },
+  closeWalkChoice(){ $('walkChoice').classList.add('hidden'); },
+
+  startWalk(mode){
+    const s = Store.data;
+    $('walkChoice').classList.add('hidden');
+    $('walkOverlay').classList.remove('hidden');
+    haptic(25);
+    if(!s.home && mode==='demo'){ s.home = FALLBACK_HOME; World.configure(s.home[0]); Store.save(); }
+    const w = this.walk = {
+      mode, t0: now(), startHour: new Date().getHours(),
+      path: [], dist: 0, sniffSec: 0, xp: 0,
+      tiles: new Set(), found: [], foundTypes: [],
+      lastP: null, lastT: null, geoId: null, timer: null, demoIdx: 0, demoRoute: null, dwell: 0,
+    };
+    $('walkMode').textContent = mode==='demo' ? 'Demo sniffari in progress' : 'Sniffari in progress';
+    $('gpsChip').textContent = mode==='demo' ? '✨ demo' : '📍 locating…';
+
+    if(mode==='gps'){
+      if(!navigator.geolocation){ alert('No GPS available — try Demo mode.'); this.abortWalk(); return; }
+      w.geoId = navigator.geolocation.watchPosition(
+        p => { $('gpsChip').textContent = '📍 live';
+          if(!s.home){ s.home=[p.coords.latitude, p.coords.longitude]; World.configure(s.home[0]); Store.save(); }
+          this.ingest(p.coords.latitude, p.coords.longitude); },
+        e => { $('gpsChip').textContent = '📍 no signal'; },
+        { enableHighAccuracy:true, maximumAge:2000, timeout:15000 });
+    } else {
+      // scripted demo along a loop from home
+      const home = s.home; const bear = (this.dir===null?45:this.dir)*Math.PI/180;
+      const meters = this.lenMinutes()*55; const R = meters/(2*Math.PI)*2.1;
+      const latM = 1/111111, lonM = latM/Math.max(.2, Math.cos(home[0]*Math.PI/180));
+      const cx = home[1] + Math.sin(bear)*R*lonM, cy = home[0] + Math.cos(bear)*R*latM;
+      w.demoRoute = [];
+      for(let i=0;i<=140;i++){ const th = i/140*Math.PI*2 + bear + Math.PI;
+        const r = R*(1+.16*Math.sin(3*th+1));
+        w.demoRoute.push([cy + Math.cos(th)*r*latM, cx + Math.sin(th)*r*lonM]); }
+      w.demoRoute[0] = [...home]; w.demoRoute[w.demoRoute.length-1] = [...home];
+      w.timer = setInterval(()=>{
+        if(w.demoIdx >= w.demoRoute.length){ this.finishWalk(); return; }
+        const p = w.demoRoute[w.demoIdx];
+        // sniff-pause near spots
+        const near = World.spotsAround(p[0],p[1],2).some(sp=>!s.spots[sp.id] && World.dist(sp.lat,sp.lon,p[0],p[1])<22);
+        if(near && w.dwell<6){ w.dwell++; this.ingest(p[0]+ (Math.random()-.5)*2e-5, p[1]+(Math.random()-.5)*2e-5); }
+        else { w.dwell=0; w.demoIdx++; this.ingest(p[0], p[1]); }
+      }, 420);
+    }
+    w.hud = setInterval(()=>{ const el=(now()-w.t0)/1000;
+      $('wTime').textContent = Math.floor(el/60)+':'+String(Math.floor(el%60)).padStart(2,'0'); }, 1000);
+  },
+
+  ingest(lat,lon){
+    const s = Store.data, w = this.walk; if(!w) return;
+    const t = now();
+    if(w.lastP){
+      const d = World.dist(w.lastP[0],w.lastP[1],lat,lon);
+      if(d < 200){ // GPS glitch guard
+        w.dist += d;
+        const dt = (t - w.lastT)/1000;
+        if(dt>0 && d/dt < .45) w.sniffSec += dt;   // nose-down detection
+      }
+    }
+    w.lastP=[lat,lon]; w.lastT=t; w.path.push([lat,lon]);
+    const [tx,ty] = World.tile(lat,lon);
+    for(let dx=-1;dx<=1;dx++)for(let dy=-1;dy<=1;dy++) w.tiles.add(World.key(tx+dx,ty+dy));
+    // discovery
+    for(const sp of World.spotsAround(lat,lon,2)){
+      if(s.spots[sp.id] || w.found.some(f=>f.id===sp.id)) continue;
+      if(World.dist(sp.lat,sp.lon,lat,lon) < 18){
+        w.found.push(sp); w.foundTypes.push(sp.type.id);
+        w.xp += World.XP[sp.tier];
+        this.toast(sp); Sfx.discover(); haptic([20,30,20]); Confetti.burst(30);
+      }
+    }
+    $('wNew').textContent = w.found.length;
+    $('wSniff').textContent = Math.floor(w.sniffSec/60);
+    $('wDist').textContent = (w.dist/1000).toFixed(2);
+    $('wTiles').textContent = w.tiles.size;
+    $('wXP').textContent = w.xp;
+    MapDraw.walk();
+  },
+
+  toast(sp){
+    const el = document.createElement('div'); el.className='toast';
+    el.innerHTML = `<img src="art/${sp.type.img}.png"><div class="grow"><div class="cap">New spot discovered!</div><div class="qtitle">${sp.name}</div></div><div class="xpnum" style="font-size:19px;">+${World.XP[sp.tier]}</div>`;
+    $('walkToast').replaceChildren(el); setTimeout(()=>el.remove(), 2800);
+  },
+
+  abortWalk(){ const w=this.walk; if(!w) return;
+    if(w.geoId!==null && navigator.geolocation) navigator.geolocation.clearWatch(w.geoId);
+    clearInterval(w.timer); clearInterval(w.hud);
+    $('walkOverlay').classList.add('hidden'); this.walk=null; },
+
+  finishWalk(){
+    const s = Store.data, w = this.walk; if(!w) return;
+    if(w.geoId!==null && navigator.geolocation) navigator.geolocation.clearWatch(w.geoId);
+    clearInterval(w.timer); clearInterval(w.hud);
+    const dur = (now()-w.t0)/1000;
+
+    // streak
+    const today = dayKey();
+    if(s.lastWalkDay !== today){
+      if(s.lastWalkDay){ const days = Math.floor((new Date(today)-new Date(s.lastWalkDay))/86400000);
+        if(days<=1) s.streak++; else if(days===2 && s.freeze){ s.freeze=false; s.streak++; } else s.streak=1;
+      } else s.streak=1;
+      s.lastWalkDay = today;
+    }
+    // xp
+    let dogXP = 40 + w.xp + Math.floor(w.sniffSec/60)*12 + s.streak*8 + Math.floor(w.dist/1000)*10;
+    let guideXP = Math.floor(dogXP*.55);
+    const lvlBefore = XPR.level(s.dogXP);
+    s.dogXP += dogXP; s.guideXP += guideXP;
+    const lvlAfter = XPR.level(s.dogXP);
+    // persist world
+    w.found.forEach(sp=>{ s.spots[sp.id]={id:sp.id,name:sp.name,type:sp.type.id,img:sp.type.img,tier:sp.tier,date:today}; });
+    const tset = new Set(s.tiles); let revealed=0;
+    w.tiles.forEach(k=>{ if(!tset.has(k)){ tset.add(k); revealed++; } });
+    s.tiles = [...tset];
+    s.totalDist += w.dist; s.totalSniffSec += w.sniffSec;
+    s.walks.push({date:today, dur, dist:w.dist, found:w.found.length, xp:dogXP, demo:w.mode==='demo'});
+    // quests
+    s.quests.list.forEach(q=>{ if(q.done) return;
+      if(q.id.startsWith('new-spots')) q.prog += w.found.length;
+      else if(q.id==='walk-15') q.prog += dur/60;
+      else if(q.id==='sniff-5') q.prog += w.sniffSec/60;
+      else if(q.id==='tiles-12') q.prog += revealed;
+      else if(q.id==='rare-1'){ if(w.found.some(f=>f.tier!=='common')) q.prog = q.target; }
+      else if(q.id==='distance-1k') q.prog += w.dist;
+      if(q.prog>=q.target) q.done=true; });
+    // badges
+    const wCtx = {startHour:w.startHour, foundTypes:w.foundTypes, dist:w.dist};
+    const newBadges = [];
+    BADGES.forEach(([id,nm,img,chk])=>{ if(!s.badges[id] && chk(s,wCtx)){ s.badges[id]={date:today}; newBadges.push([nm,img]); } });
+    Store.save();
+
+    // summary UI
+    $('walkOverlay').classList.add('hidden');
+    $('summaryOverlay').classList.remove('hidden');
+    $('sNew').textContent = w.found.length;
+    $('sSniff').textContent = Math.floor(w.sniffSec/60)+'m';
+    $('sTime').textContent = Math.floor(dur/60)+':'+String(Math.floor(dur%60)).padStart(2,'0');
+    $('sTiles').textContent = revealed+' tiles';
+    $('sSpotsCard').innerHTML = '<b style="font-size:17px;">Fresh discoveries</b>' +
+      (w.found.map(f=>`<div class="fieldrow"><img src="art/${f.type.img}.png"><span class="name grow">${f.name}</span><span class="count">+${World.XP[f.tier]}</span></div>`).join('')
+       || '<div class="cap">No new spots this time — try a fresh direction tomorrow!</div>') +
+      newBadges.map(([nm,img])=>`<div class="fieldrow"><img src="art/${img}.png" style="border-radius:50%;"><span class="name grow">🏅 ${nm}</span></div>`).join('');
+    let cur=0; const step=Math.max(1,Math.floor(dogXP/40));
+    const iv=setInterval(()=>{ cur=Math.min(dogXP,cur+step); $('sXP').textContent=cur; if(cur>=dogXP) clearInterval(iv); },30);
+    Confetti.burst(150); Sfx.finish(); haptic([30,50,30]);
+    this.walk=null; this.renderAll();
+
+    if(lvlAfter>lvlBefore){
+      setTimeout(()=>{ $('luLvl').textContent=lvlAfter; this._pendingLvl = lvlAfter;
+        $('luRankLine').innerHTML = `${s.dog1} & ${s.dog2} are now <b>${rank(DOG_RANKS,lvlAfter)}s</b>`;
+        $('levelUp').classList.remove('hidden'); Confetti.burst(160); Sfx.fanfare(); haptic([40,60,40,60,40]); },1500);
+    }
+  },
+  closeSummary(){ $('summaryOverlay').classList.add('hidden'); this.tabTo('home'); },
+
+  openChest(){ const s=Store.data;
+    if(s.quests.claimed) return;
+    s.quests.claimed = true; s.dogXP += 120; s.guideXP += 120; Store.save();
+    Confetti.burst(120); Sfx.chest(); haptic([30,40,30]); this.renderQuests(); },
+
+  /* ----- treats ----- */
+  showTreats(){ const s=Store.data;
+    $('levelUp').classList.add('hidden');
+    $('treatIntro').innerHTML = `Level ${this._pendingLvl} calls for a REAL celebration.<br>Put a few treats in a bowl and let<br>${s.dog1} & ${s.dog2} pick their prize!`;
+    $('treatGrid').innerHTML = TREATS.map(([id,nm,img,fl],i)=>
+      `<div class="treat" onclick="App.chooseTreat(${i})"><img src="art/${img}.png"><div class="tn">${nm}</div><div class="tf">${fl}</div></div>`).join('');
+    this.treatStage(1);
+    $('treatCeremony').classList.remove('hidden'); Sfx.chest(); },
+  treatStage(n){ [1,2,3].forEach(i=>$('treatStage'+i).classList.toggle('hidden', i!==n)); },
+  chooseTreat(i){ const s=Store.data; const [id,nm,img] = TREATS[i];
+    s.treats.push({id,name:nm,img,lvl:this._pendingLvl,date:dayKey()}); Store.save();
+    $('chosenTreatName').textContent = nm+'!';
+    const c = s.treats.filter(t=>t.id===id).length;
+    $('chosenTreatLine').textContent = c>1? `That's ${c} times now — officially a favorite ❤️` : "Logged to the pack's treat history.";
+    this.treatStage(3); Confetti.burst(120); Sfx.fanfare(); haptic([30,50,30]); },
+  closeTreats(){ $('treatCeremony').classList.add('hidden'); },
+};
+
+/* ---------- canvas map drawing ---------- */
+const MapDraw = (() => {
+  const fit = cv => { const r = cv.getBoundingClientRect(); const s = devicePixelRatio||1;
+    if(cv.width !== r.width*s){ cv.width=r.width*s; cv.height=r.height*s; } };
+  const rng = seed => { let s=seed; return ()=>((s=(s*9301+49297)%233280)/233280); };
+
+  // shared painter: draws the procedural neighborhood + fog for a lat/lon window
+  function paint(cv, opts){
+    fit(cv); const ctx = cv.getContext('2d'), W=cv.width, H=cv.height;
+    const s = Store.data; const home = s.home||FALLBACK_HOME;
+    const span = opts.span; // degrees lat visible
+    const c0 = opts.center;
+    const latPx = H/span, lonPx = latPx*Math.max(.2, Math.cos(home[0]*Math.PI/180));
+    const X = lon => W/2 + (lon - c0[1])*lonPx;
+    const Y = lat => H/2 - (lat - c0[0])*latPx;
+    const rand = rng(77);
+    ctx.fillStyle='#EDE8DA'; ctx.fillRect(0,0,W,H);
+    // street grid aligned to world tiles
+    ctx.strokeStyle='#DDD5C2'; ctx.lineWidth=Math.max(4, W*.012);
+    const step = World.TILE_LAT*3;
+    for(let lon=Math.floor((c0[1]-span)/step)*step; lon<c0[1]+span; lon+=step){ ctx.beginPath(); ctx.moveTo(X(lon),0); ctx.lineTo(X(lon),H); ctx.stroke(); }
+    for(let lat=Math.floor((c0[0]-span)/step)*step; lat<c0[0]+span; lat+=step){ ctx.beginPath(); ctx.moveTo(0,Y(lat)); ctx.lineTo(W,Y(lat)); ctx.stroke(); }
+    // parks from world hash
+    ctx.fillStyle='#CDE3C4';
+    const [htx,hty] = World.tile(c0[0],c0[1]);
+    for(let dx=-24;dx<=24;dx+=3)for(let dy=-24;dy<=24;dy+=3){
+      if(World.unit(World.hash(htx+dx,hty+dy,0x9A66n))<.12){
+        const [clat,clon] = World.center(htx+dx,hty+dy);
+        ctx.beginPath(); ctx.ellipse(X(clon),Y(clat), W*.06+rand()*W*.05, H*.05+rand()*H*.04, 0,0,7); ctx.fill(); } }
+    // planned route
+    if(opts.route){ ctx.setLineDash([2, W*.015]); ctx.strokeStyle='#5AB3F2'; ctx.lineWidth=W*.008+2; ctx.lineCap='round';
+      ctx.beginPath(); opts.route.forEach((p,i)=> i?ctx.lineTo(X(p[1]),Y(p[0])):ctx.moveTo(X(p[1]),Y(p[0]))); ctx.stroke(); ctx.setLineDash([]); }
+    // walked path
+    if(opts.path && opts.path.length>1){ ctx.strokeStyle='#F27E65'; ctx.lineWidth=W*.01+2; ctx.lineCap='round'; ctx.lineJoin='round';
+      ctx.beginPath(); opts.path.forEach((p,i)=> i?ctx.lineTo(X(p[1]),Y(p[0])):ctx.moveTo(X(p[1]),Y(p[0]))); ctx.stroke(); }
+    // spots
+    const em = Math.max(20, W*.045);
+    ctx.font = em+'px serif'; ctx.textAlign='center';
+    const glyph = {tree:'🌳',hydrant:'🧯',bench:'🪑',park:'🌲',trailhead:'🪧',mystery:'🎁'};
+    World.spotsAround(c0[0], c0[1], 22).forEach(sp=>{
+      const x=X(sp.lon), y=Y(sp.lat); if(x<-30||y<-30||x>W+30||y>H+30) return;
+      const got = !!s.spots[sp.id] || (opts.foundIds && opts.foundIds.has(sp.id));
+      ctx.globalAlpha = got?1:.85; ctx.fillText(glyph[sp.type.id]||'🌳', x, y);
+      if(!got){ ctx.globalAlpha=1; ctx.fillStyle='#986FD6'; ctx.beginPath(); ctx.arc(x+em*.42,y-em*.62,em*.2,0,7); ctx.fill();
+        ctx.fillStyle='#fff'; ctx.font='bold '+(em*.3)+'px sans-serif'; ctx.fillText('?', x+em*.42, y-em*.52); ctx.font=em+'px serif'; }
+      ctx.globalAlpha=1; });
+    // home
+    ctx.fillText('🏠', X(home[1]), Y(home[0]));
+    // pack puck
+    if(opts.puck){ const x=X(opts.puck[1]), y=Y(opts.puck[0]);
+      ctx.fillStyle='#F27E65'; ctx.beginPath(); ctx.arc(x,y,W*.02+4,0,7); ctx.fill();
+      ctx.strokeStyle='#fff'; ctx.lineWidth=3; ctx.stroke(); }
+    // fog
+    if(opts.fog){
+      ctx.save(); ctx.fillStyle='rgba(40,33,26,.42)'; ctx.fillRect(0,0,W,H);
+      ctx.globalCompositeOperation='destination-out';
+      const tset = opts.tiles;
+      const rad = World.TILE_LAT*latPx*2.2;
+      tset.forEach(k=>{ const [x,y]=k.split(':').map(Number); const [clat,clon]=World.center(x,y);
+        const px=X(clon), py=Y(clat); if(px<-rad||py<-rad||px>W+rad||py>H+rad) return;
+        const g=ctx.createRadialGradient(px,py,1,px,py,rad);
+        g.addColorStop(0,'rgba(0,0,0,1)'); g.addColorStop(.7,'rgba(0,0,0,1)'); g.addColorStop(1,'rgba(0,0,0,0)');
+        ctx.fillStyle=g; ctx.beginPath(); ctx.arc(px,py,rad,0,7); ctx.fill(); });
+      ctx.restore();
+    }
+  }
+
+  function plannedRoute(){
+    const s=Store.data; const home = s.home||FALLBACK_HOME;
+    const bear=(App.dir===null?45:App.dir)*Math.PI/180;
+    const meters=App.lenMinutes()*55, R=meters/(2*Math.PI)*2.1;
+    const latM=1/111111, lonM=latM/Math.max(.2,Math.cos(home[0]*Math.PI/180));
+    const cx=home[1]+Math.sin(bear)*R*lonM, cy=home[0]+Math.cos(bear)*R*latM;
+    const pts=[];
+    for(let i=0;i<=80;i++){ const th=i/80*Math.PI*2+bear+Math.PI; const r=R*(1+.16*Math.sin(3*th+1));
+      pts.push([cy+Math.cos(th)*r*latM, cx+Math.sin(th)*r*lonM]); }
+    pts[0]=[...home]; pts[pts.length-1]=[...home];
+    return {pts, span: Math.max(.006, R*latM*4.2)};
+  }
+
+  return {
+    preview(){ const s=Store.data; const home=s.home||FALLBACK_HOME;
+      const {pts, span} = plannedRoute();
+      paint($('previewMap'), {center:home, span, route:pts, fog:true, tiles:new Set(s.tiles)}); },
+    big(){ const s=Store.data; const home=s.home||FALLBACK_HOME;
+      paint($('bigMap'), {center:home, span:.02, fog:true, tiles:new Set(s.tiles)}); },
+    walk(){ const w=App.walk; if(!w) return; const s=Store.data;
+      const c = w.lastP || (s.home||FALLBACK_HOME);
+      const merged = new Set(s.tiles); w.tiles.forEach(k=>merged.add(k));
+      paint($('walkMap'), {center:c, span:.007, route:w.demoRoute, path:w.path, puck:w.lastP,
+        fog:true, tiles:merged, foundIds:new Set(w.found.map(f=>f.id))}); },
+  };
+})();
+
+/* ---------- sprite strip animator ---------- */
+const Sprites = (() => {
+  const attach = el => {
+    const n = +el.dataset.frames, fps = +el.dataset.fps || 8;
+    el.style.backgroundImage = `url('${el.dataset.strip}')`;
+    el.style.backgroundSize = (n*100)+'% 100%';
+    let i = 0;
+    const step = () => { el.style.backgroundPosition = (n>1 ? (i/(n-1)*100) : 0)+'% 0%'; i = (i+1)%n; };
+    step();
+    el._spriteTimer = setInterval(()=>{ if(document.body.contains(el)) step(); }, 1000/fps);
+    // fallback: if the strip 404s, show the static master art breathing
+    const probe = new Image();
+    probe.onerror = () => { clearInterval(el._spriteTimer);
+      el.style.backgroundImage = "url('art/MascotMaster.png')";
+      el.style.backgroundSize = 'cover'; el.style.animation = 'breathe 3.4s ease-in-out infinite'; };
+    probe.src = el.dataset.strip;
+  };
+  return { attach, start(){ document.querySelectorAll('.sprite[data-strip]').forEach(attach); } };
+})();
+
+/* ---------- confetti ---------- */
+const Confetti = (() => {
+  const cv = $('confetti'), ctx = cv.getContext('2d');
+  const size = () => { cv.width=innerWidth*(devicePixelRatio||1); cv.height=innerHeight*(devicePixelRatio||1); };
+  size(); addEventListener('resize', size);
+  let pieces=[];
+  const COLORS=['#2BB37A','#5AB3F2','#F27E65','#F2B74D','#34A99C','#986FD6'];
+  (function loop(){ ctx.clearRect(0,0,cv.width,cv.height);
+    pieces=pieces.filter(p=>p.life>0&&p.y<cv.height+30);
+    for(const p of pieces){ p.x+=p.vx; p.y+=p.vy; p.vy+=.3; p.r+=p.vr; p.life--;
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.r); ctx.globalAlpha=Math.min(1,p.life/40);
+      ctx.fillStyle=p.c; ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s); ctx.restore(); }
+    requestAnimationFrame(loop); })();
+  return { burst(n){ const s=devicePixelRatio||1;
+    for(let i=0;i<n;i++) pieces.push({x:cv.width/2, y:cv.height*.3, vx:(Math.random()-.5)*12*s, vy:(-Math.random()*11-3)*s,
+      s:(4+Math.random()*7)*s, c:COLORS[Math.floor(Math.random()*6)], r:Math.random()*7, vr:(Math.random()-.5)*.4, life:130}); } };
+})();
+
+/* ---------- goal segment picker ---------- */
+document.querySelectorAll('#obGoal div').forEach(d=>d.onclick=()=>{
+  document.querySelectorAll('#obGoal div').forEach(x=>x.classList.remove('sel')); d.classList.add('sel'); });
+
+App.boot();
+</script>
+</body>
+</html>
